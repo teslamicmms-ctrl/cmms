@@ -564,6 +564,10 @@
         <div id="equipamentos" class="tab-content">
             <div class="card">
                 <h2>Base de Equipamentos</h2>
+                <button onclick="abrirModalEquipamento()" style="margin-bottom: 15px; background: var(--success);">+ Novo Equipamento</button>
+                <div style="margin: 15px 0;">
+                    <input type="text" id="buscaEquipamento" placeholder="Buscar por número de série, modelo ou cliente..." onkeyup="filtrarEquipamentos()">
+                </div>
                 <table>
                     <thead>
                         <tr>
@@ -573,6 +577,7 @@
                             <th>Data Instalação</th>
                             <th>Status</th>
                             <th>O.S. Relacionadas</th>
+                            <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody id="tabelaEquipamentos">
@@ -899,7 +904,7 @@
             const tbody = document.getElementById('tabelaEquipamentos');
             tbody.innerHTML = '';
 
-            equipamentos.forEach(equip => {
+            equipamentos.forEach((equip, index) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td><span class="model-tag">${equip.modelo}</span></td>
@@ -908,6 +913,9 @@
                     <td>${equip.dataInstalacao}</td>
                     <td>${equip.status}</td>
                     <td>${equip.osRelacionadas}</td>
+                    <td>
+                        <button class="action-btn" onclick="editarEquipamento(${index})" style="background: var(--primary);">✏️</button>
+                    </td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -1090,6 +1098,96 @@
             const modal = document.getElementById('modalOS');
             if (event.target == modal) {
                 fecharModal();
+            }
+        }
+
+        // Funções do Modal de Equipamento
+        function abrirModalEquipamento(index = null) {
+            const selectCliente = document.getElementById('editCliente');
+            selectCliente.innerHTML = '<option value="">Selecione...</option>';
+            
+            clientes.forEach(cliente => {
+                const option = document.createElement('option');
+                option.value = cliente.nome;
+                option.textContent = cliente.nome;
+                selectCliente.appendChild(option);
+            });
+
+            if (index !== null && index >= 0 && index < equipamentos.length) {
+                const equip = equipamentos[index];
+                document.getElementById('editEquipIndex').value = index;
+                document.getElementById('editModelo').value = equip.modelo;
+                document.getElementById('editNumSerie').value = equip.numSerie;
+                document.getElementById('editCliente').value = equip.cliente;
+                document.getElementById('editDataInstalacao').value = equip.dataInstalacao;
+                document.getElementById('editStatusEquip').value = equip.status;
+                document.getElementById('editObsEquip').value = equip.observacoes || '';
+            } else {
+                document.getElementById('formEquipamento').reset();
+                document.getElementById('editEquipIndex').value = '';
+            }
+
+            document.getElementById('modalEquipamento').style.display = 'block';
+        }
+
+        function fecharModalEquipamento() {
+            document.getElementById('modalEquipamento').style.display = 'none';
+        }
+
+        function salvarEquipamento(event) {
+            event.preventDefault();
+            
+            const index = document.getElementById('editEquipIndex').value;
+            const equipamento = {
+                modelo: document.getElementById('editModelo').value,
+                numSerie: document.getElementById('editNumSerie').value,
+                cliente: document.getElementById('editCliente').value,
+                dataInstalacao: document.getElementById('editDataInstalacao').value,
+                status: document.getElementById('editStatusEquip').value,
+                observacoes: document.getElementById('editObsEquip').value,
+                osRelacionadas: 0
+            };
+
+            if (index !== '') {
+                // Editar existente
+                equipamento.osRelacionadas = equipamentos[index].osRelacionadas;
+                equipamentos[index] = equipamento;
+            } else {
+                // Novo equipamento
+                equipamentos.push(equipamento);
+            }
+
+            localStorage.setItem('cmms_equipamentos', JSON.stringify(equipamentos));
+            renderizarEquipamentos();
+            fecharModalEquipamento();
+            alert('Equipamento salvo com sucesso!');
+        }
+
+        function editarEquipamento(index) {
+            event.stopPropagation();
+            abrirModalEquipamento(index);
+        }
+
+        function filtrarEquipamentos() {
+            const termo = document.getElementById('buscaEquipamento').value.toLowerCase();
+            const linhas = document.querySelectorAll('#tabelaEquipamentos tr');
+
+            linhas.forEach(linha => {
+                const texto = linha.textContent.toLowerCase();
+                linha.style.display = texto.includes(termo) ? '' : 'none';
+            });
+        }
+
+        // Fechar modal ao clicar fora
+        window.onclick = function(event) {
+            const modalOS = document.getElementById('modalOS');
+            const modalEquip = document.getElementById('modalEquipamento');
+            
+            if (event.target == modalOS) {
+                fecharModal();
+            }
+            if (event.target == modalEquip) {
+                fecharModalEquipamento();
             }
         }
 
