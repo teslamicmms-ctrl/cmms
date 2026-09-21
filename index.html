@@ -365,6 +365,10 @@
                 <span class="nav-icon">📋</span>
                 <span>Lista de O.S.</span>
             </div>
+            <div class="nav-item" onclick="showTab('clientes')" data-tab="clientes">
+                <span class="nav-icon">👥</span>
+                <span>Clientes</span>
+            </div>
             <div class="nav-item" onclick="showTab('equipamentos')" data-tab="equipamentos">
                 <span class="nav-icon">🖨️</span>
                 <span>Equipamentos</span>
@@ -464,7 +468,9 @@
 
                     <div class="form-group">
                         <label>Cliente</label>
-                        <input type="text" id="cliente" placeholder="Nome do cliente" required>
+                        <select id="clienteSelect" required>
+                            <option value="">Selecione um cliente...</option>
+                        </select>
                     </div>
 
                     <div class="form-group">
@@ -509,6 +515,46 @@
                         </tr>
                     </thead>
                     <tbody id="tabelaOS">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Clientes -->
+        <div id="clientes" class="tab-content">
+            <div class="card">
+                <h2>Gerenciar Clientes</h2>
+                <form id="clienteForm" onsubmit="criarCliente(event)" style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 15px; margin-bottom: 20px; align-items: end;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Nome do Cliente</label>
+                        <input type="text" id="nomeCliente" placeholder="Nome da empresa" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>CNPJ/CPF</label>
+                        <input type="text" id="docCliente" placeholder="00.000.000/0000-00">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Telefone</label>
+                        <input type="text" id="telCliente" placeholder="(00) 0000-0000">
+                    </div>
+                    <button type="submit" style="height: 42px;">Adicionar Cliente</button>
+                </form>
+                <div style="margin: 15px 0;">
+                    <input type="text" id="buscaCliente" placeholder="Buscar cliente..." onkeyup="filtrarClientes()">
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Cliente</th>
+                            <th>CNPJ/CPF</th>
+                            <th>Telefone</th>
+                            <th>Equipamentos</th>
+                            <th>O.S. Total</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaClientes">
                     </tbody>
                 </table>
             </div>
@@ -675,10 +721,103 @@
         // Dados iniciais
         let ordensServico = [];
         let equipamentos = [];
+        let clientes = [];
         let contadorOS = 1;
 
         // Data atual
         document.getElementById('currentDate').textContent = new Date().toLocaleDateString('pt-BR');
+
+        // Atualizar select de clientes no formulário de O.S.
+        function atualizarSelectClientes() {
+            const select = document.getElementById('clienteSelect');
+            select.innerHTML = '<option value="">Selecione um cliente...</option>';
+            clientes.forEach(cliente => {
+                const option = document.createElement('option');
+                option.value = cliente.nome;
+                option.textContent = cliente.nome;
+                select.appendChild(option);
+            });
+        }
+
+        // Criar novo cliente
+        function criarCliente(event) {
+            event.preventDefault();
+            
+            const cliente = {
+                id: clientes.length + 1,
+                nome: document.getElementById('nomeCliente').value,
+                documento: document.getElementById('docCliente').value,
+                telefone: document.getElementById('telCliente').value,
+                dataCadastro: new Date().toLocaleDateString('pt-BR')
+            };
+
+            clientes.push(cliente);
+            localStorage.setItem('cmms_clientes', JSON.stringify(clientes));
+            
+            alert('Cliente cadastrado com sucesso!');
+            document.getElementById('clienteForm').reset();
+            renderizarClientes();
+            atualizarSelectClientes();
+        }
+
+        // Renderizar tabela de clientes
+        function renderizarClientes() {
+            const tbody = document.getElementById('tabelaClientes');
+            tbody.innerHTML = '';
+
+            clientes.forEach(cliente => {
+                const numEquipamentos = equipamentos.filter(e => e.cliente === cliente.nome).length;
+                const numOS = ordensServico.filter(o => o.cliente === cliente.nome).length;
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${cliente.id}</td>
+                    <td><strong>${cliente.nome}</strong></td>
+                    <td>${cliente.documento || '-'}</td>
+                    <td>${cliente.telefone || '-'}</td>
+                    <td>${numEquipamentos}</td>
+                    <td>${numOS}</td>
+                    <td>
+                        <button class="action-btn" onclick="verEquipamentosCliente('${cliente.nome}')">📋</button>
+                        <button class="action-btn secondary" onclick="editarCliente(${cliente.id})">✏️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Filtrar clientes
+        function filtrarClientes() {
+            const termo = document.getElementById('buscaCliente').value.toLowerCase();
+            const linhas = document.querySelectorAll('#tabelaClientes tr');
+
+            linhas.forEach(linha => {
+                const texto = linha.textContent.toLowerCase();
+                linha.style.display = texto.includes(termo) ? '' : 'none';
+            });
+        }
+
+        // Ver equipamentos do cliente
+        function verEquipamentosCliente(nomeCliente) {
+            showTab('equipamentos');
+            const equipCliente = equipamentos.filter(e => e.cliente === nomeCliente);
+            alert(`${nomeCliente} possui ${equipCliente.length} equipamento(s) registrado(s).`);
+        }
+
+        // Editar cliente (simples)
+        function editarCliente(id) {
+            const cliente = clientes.find(c => c.id === id);
+            if (cliente) {
+                document.getElementById('nomeCliente').value = cliente.nome;
+                document.getElementById('docCliente').value = cliente.documento || '';
+                document.getElementById('telCliente').value = cliente.telefone || '';
+                // Remove o cliente antigo para recriar com novos dados
+                clientes = clientes.filter(c => c.id !== id);
+                localStorage.setItem('cmms_clientes', JSON.stringify(clientes));
+                renderizarClientes();
+                atualizarSelectClientes();
+            }
+        }
 
         // Criar nova O.S.
         function criarOS(event) {
@@ -689,7 +828,7 @@
                 tipo: document.getElementById('tipoServico').value,
                 modelo: document.getElementById('modeloEquipamento').value,
                 numSerie: document.getElementById('numSerie').value,
-                cliente: document.getElementById('cliente').value,
+                cliente: document.getElementById('clienteSelect').value,
                 descricao: document.getElementById('descricaoProblema').value,
                 tecnico: document.getElementById('tecnicoResponsavel').value,
                 status: 'Aberto',
@@ -709,13 +848,13 @@
                     status: 'Ativo',
                     osRelacionadas: 1
                 });
+                localStorage.setItem('cmms_equipamentos', JSON.stringify(equipamentos));
             } else {
                 equipExistente.osRelacionadas++;
             }
 
             // Salvar no LocalStorage
             localStorage.setItem('cmms_ordens', JSON.stringify(ordensServico));
-            localStorage.setItem('cmms_equipamentos', JSON.stringify(equipamentos));
             localStorage.setItem('cmms_contador', contadorOS.toString());
 
             alert(`O.S. #${os.id} criada com sucesso!`);
@@ -809,16 +948,26 @@
             // Carregar do LocalStorage primeiro
             const ordensSalvas = localStorage.getItem('cmms_ordens');
             const equipamentosSalvos = localStorage.getItem('cmms_equipamentos');
+            const clientesSalvos = localStorage.getItem('cmms_clientes');
             const contadorSalvo = localStorage.getItem('cmms_contador');
 
             if (ordensSalvas && equipamentosSalvos) {
                 ordensServico = JSON.parse(ordensSalvas);
                 equipamentos = JSON.parse(equipamentosSalvos);
+                if (clientesSalvos) {
+                    clientes = JSON.parse(clientesSalvos);
+                }
                 if (contadorSalvo) {
                     contadorOS = parseInt(contadorSalvo);
                 }
             } else {
                 // Dados de exemplo apenas se não houver dados salvos
+                clientes = [
+                    { id: 1, nome: 'Indústria A', documento: '00.000.000/0001-00', telefone: '(11) 1111-1111', dataCadastro: '01/01/2024' },
+                    { id: 2, nome: 'Empresa B', documento: '11.111.111/0001-11', telefone: '(11) 2222-2222', dataCadastro: '15/01/2024' },
+                    { id: 3, nome: 'Fábrica C', documento: '22.222.222/0001-22', telefone: '(11) 3333-3333', dataCadastro: '20/01/2024' }
+                ];
+
                 ordensServico = [
                     { id: 1, tipo: 'Preventiva', modelo: 'Bestcode 81', numSerie: 'BC81-2024-001', cliente: 'Indústria A', tecnico: 'João Silva', status: 'Concluido', dataAbertura: '01/01/2024' },
                     { id: 2, tipo: 'Corretiva', modelo: 'Bestcode 86', numSerie: 'BC86-2024-015', cliente: 'Empresa B', tecnico: 'Maria Santos', status: 'Andamento', dataAbertura: '15/01/2024' },
@@ -832,9 +981,13 @@
                 ];
 
                 contadorOS = 4;
+                
+                // Salvar dados iniciais
+                localStorage.setItem('cmms_clientes', JSON.stringify(clientes));
             }
 
             atualizarDashboard();
+            atualizarSelectClientes();
         }
 
         // Toggle menu mobile
@@ -870,6 +1023,7 @@
             // Renderizar dados se necessário
             if (tabId === 'lista-os') renderizarOS();
             if (tabId === 'equipamentos') renderizarEquipamentos();
+            if (tabId === 'clientes') renderizarClientes();
         }
 
         // Funções do Modal
