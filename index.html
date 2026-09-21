@@ -565,8 +565,18 @@
             <div class="card">
                 <h2>Base de Equipamentos</h2>
                 <button onclick="abrirModalEquipamento()" style="margin-bottom: 15px; background: var(--success);">+ Novo Equipamento</button>
-                <div style="margin: 15px 0;">
-                    <input type="text" id="buscaEquipamento" placeholder="Buscar por número de série, modelo ou cliente..." onkeyup="filtrarEquipamentos()">
+                <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <input type="text" id="buscaEquipCliente" placeholder="Filtrar por Cliente..." onkeyup="filtrarEquipamentos()" style="flex: 1; min-width: 200px; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                    <select id="buscaEquipModelo" onchange="filtrarEquipamentos()" style="flex: 1; min-width: 200px; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                        <option value="">Todos os Modelos</option>
+                        <option value="Bestcode 81">Bestcode 81</option>
+                        <option value="Bestcode 82">Bestcode 82</option>
+                        <option value="Bestcode 86">Bestcode 86</option>
+                        <option value="Bestcode 87">Bestcode 87</option>
+                        <option value="Bestcode 88">Bestcode 88</option>
+                        <option value="Quantum">Quantum</option>
+                    </select>
+                    <input type="text" id="buscaEquipSerie" placeholder="Filtrar por Nº Série..." onkeyup="filtrarEquipamentos()" style="flex: 1; min-width: 200px; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;">
                 </div>
                 <table>
                     <thead>
@@ -1231,12 +1241,24 @@
         }
 
         function filtrarEquipamentos() {
-            const termo = document.getElementById('buscaEquipamento').value.toLowerCase();
+            const cliente = document.getElementById('buscaEquipCliente').value.toLowerCase();
+            const modelo = document.getElementById('buscaEquipModelo').value;
+            const serie = document.getElementById('buscaEquipSerie').value.toLowerCase();
             const linhas = document.querySelectorAll('#tabelaEquipamentos tr');
 
             linhas.forEach(linha => {
-                const texto = linha.textContent.toLowerCase();
-                linha.style.display = texto.includes(termo) ? '' : 'none';
+                const celulas = linha.querySelectorAll('td');
+                if (celulas.length === 0) return; // Ignora cabeçalho
+                
+                const modeloCelula = celulas[0].textContent.toLowerCase();
+                const serieCelula = celulas[1].textContent.toLowerCase();
+                const clienteCelula = celulas[2].textContent.toLowerCase();
+                
+                const matchCliente = cliente === '' || clienteCelula.includes(cliente);
+                const matchModelo = modelo === '' || modeloCelula.includes(modelo.toLowerCase());
+                const matchSerie = serie === '' || serieCelula.includes(serie);
+                
+                linha.style.display = (matchCliente && matchModelo && matchSerie) ? '' : 'none';
             });
         }
 
