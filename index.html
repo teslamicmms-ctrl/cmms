@@ -628,6 +628,68 @@
                 </div>
             </div>
         </div>
+
+        <!-- Modal de Equipamento -->
+        <div id="modalEquipamento" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; overflow:auto; background-color:rgba(0,0,0,0.5);">
+            <div style="background-color:#fff; margin:5% auto; padding:30px; border:1px solid #888; width:80%; max-width:700px; border-radius:12px;">
+                <span onclick="fecharModalEquipamento()" style="color:#aaa; float:right; font-size:28px; font-weight:bold; cursor:pointer;">&times;</span>
+                <h2 style="margin-bottom:20px; color:var(--primary);" id="modalEquipamentoTitulo">Novo Equipamento</h2>
+                
+                <form id="formEquipamento" onsubmit="salvarEquipamento(event)">
+                    <input type="hidden" id="editEquipIndex" value="">
+                    
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="display:block; margin-bottom:5px; font-weight:600;">Modelo do Equipamento:</label>
+                        <select id="editModelo" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                            <option value="">Selecione...</option>
+                            <option value="Bestcode 81">Bestcode 81</option>
+                            <option value="Bestcode 82">Bestcode 82</option>
+                            <option value="Bestcode 86">Bestcode 86</option>
+                            <option value="Bestcode 87">Bestcode 87</option>
+                            <option value="Bestcode 88">Bestcode 88</option>
+                            <option value="Quantum">Quantum</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="display:block; margin-bottom:5px; font-weight:600;">Número de Série:</label>
+                        <input type="text" id="editNumSerie" placeholder="Ex: BC81-2024-001" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="display:block; margin-bottom:5px; font-weight:600;">Cliente:</label>
+                        <select id="editCliente" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="display:block; margin-bottom:5px; font-weight:600;">Data de Instalação:</label>
+                        <input type="date" id="editDataInstalacao" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="display:block; margin-bottom:5px; font-weight:600;">Status:</label>
+                        <select id="editStatusEquip" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                            <option value="Ativo">Ativo</option>
+                            <option value="Inativo">Inativo</option>
+                            <option value="Manutencao">Em Manutenção</option>
+                            <option value="Baixa">Baixa</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom:20px;">
+                        <label style="display:block; margin-bottom:5px; font-weight:600;">Observações:</label>
+                        <textarea id="editObsEquip" rows="3" placeholder="Observações adicionais..." style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;"></textarea>
+                    </div>
+
+                    <div style="margin-top:20px; text-align:right;">
+                        <button type="button" onclick="fecharModalEquipamento()" style="padding:10px 20px; margin-right:10px; border:none; border-radius:6px; background-color:var(--secondary); color:white; cursor:pointer;">Cancelar</button>
+                        <button type="submit" style="padding:10px 20px; border:none; border-radius:6px; background-color:var(--primary); color:white; cursor:pointer;">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </main>
 
     <!-- Modal de Detalhes da O.S. -->
