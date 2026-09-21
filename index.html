@@ -14,6 +14,7 @@
             --background: #f1f5f9;
             --surface: #ffffff;
             --text: #1e293b;
+            --sidebar-width: 260px;
         }
 
         * {
@@ -27,6 +28,128 @@
             background: var(--background);
             color: var(--text);
             min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--surface);
+            min-height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            color: var(--text);
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: var(--background);
+            color: var(--primary);
+        }
+
+        .nav-item.active {
+            background: #eff6ff;
+            color: var(--primary);
+            border-left-color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 24px;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1001;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.3rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 80px 16px 16px;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
         }
 
         .container {
@@ -218,11 +341,50 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
+    <!-- Mobile Menu Toggle -->
+    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+    
+    <!-- Overlay for mobile -->
+    <div class="overlay" onclick="toggleMenu()"></div>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
             <div class="logo">🔧 CMMS Bestcode</div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-item active" onclick="showTab('dashboard')" data-tab="dashboard">
+                <span class="nav-icon">📊</span>
+                <span>Dashboard</span>
+            </div>
+            <div class="nav-item" onclick="showTab('nova-os')" data-tab="nova-os">
+                <span class="nav-icon">➕</span>
+                <span>Nova O.S.</span>
+            </div>
+            <div class="nav-item" onclick="showTab('lista-os')" data-tab="lista-os">
+                <span class="nav-icon">📋</span>
+                <span>Lista de O.S.</span>
+            </div>
+            <div class="nav-item" onclick="showTab('equipamentos')" data-tab="equipamentos">
+                <span class="nav-icon">🖨️</span>
+                <span>Equipamentos</span>
+            </div>
+            <div class="nav-item" onclick="showTab('pecas')" data-tab="pecas">
+                <span class="nav-icon">⚙️</span>
+                <span>Peças & Insumos</span>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header>
             <div>
-                <span id="currentDate"></span>
+                <h2 style="font-size: 1.3rem; color: var(--text);">Assistência Técnica Bestcode</h2>
+                <p style="color: var(--secondary); font-size: 0.9rem;">Controle de equipamentos CIJ/TIJ</p>
+            </div>
+            <div>
+                <span id="currentDate" style="font-weight: 500;"></span>
             </div>
         </header>
 
@@ -243,14 +405,6 @@
                 <div class="stat-value" id="osConcluidas">0</div>
                 <div class="stat-label">Concluídas</div>
             </div>
-        </div>
-
-        <div class="tabs">
-            <button class="tab-btn active" onclick="showTab('dashboard')">📊 Dashboard</button>
-            <button class="tab-btn" onclick="showTab('nova-os')">➕ Nova O.S.</button>
-            <button class="tab-btn" onclick="showTab('lista-os')">📋 Lista de O.S.</button>
-            <button class="tab-btn" onclick="showTab('equipamentos')">🖨️ Equipamentos</button>
-            <button class="tab-btn" onclick="showTab('pecas')">⚙️ Peças & Insumos</button>
         </div>
 
         <!-- Dashboard -->
@@ -433,17 +587,6 @@
 
         // Data atual
         document.getElementById('currentDate').textContent = new Date().toLocaleDateString('pt-BR');
-
-        // Navegação entre abas
-        function showTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            event.target.classList.add('active');
-            
-            if (tabId === 'lista-os') renderizarOS();
-            if (tabId === 'equipamentos') renderizarEquipamentos();
-        }
 
         // Criar nova O.S.
         function criarOS(event) {
@@ -673,8 +816,44 @@
             </form>
         </div>
     </div>
+    </main>
 
     <script>
+        // Toggle menu mobile
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // Navegação entre abas
+        function showTab(tabId) {
+            // Esconder todas as abas
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            
+            // Remover active de todos os itens do menu
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            
+            // Mostrar aba selecionada
+            document.getElementById(tabId).classList.add('active');
+            
+            // Ativar item do menu correspondente
+            const menuItem = document.querySelector(`[data-tab="${tabId}"]`);
+            if (menuItem) {
+                menuItem.classList.add('active');
+            }
+            
+            // Fechar menu no mobile após clicar
+            if (window.innerWidth <= 768) {
+                toggleMenu();
+            }
+            
+            // Renderizar dados se necessário
+            if (tabId === 'lista-os') renderizarOS();
+            if (tabId === 'equipamentos') renderizarEquipamentos();
+        }
+
         // Carregar dados do LocalStorage se existir
         if(localStorage.getItem('cmms_ordens')) {
             ordensServico = JSON.parse(localStorage.getItem('cmms_ordens'));
