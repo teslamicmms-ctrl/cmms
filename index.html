@@ -414,7 +414,12 @@
         <!-- Dashboard -->
         <div id="dashboard" class="tab-content active">
             <div class="card">
-                <h2>Visão Geral</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h2>Visão Geral</h2>
+                    <button onclick="abrirDashboardViewer()" style="background: var(--success); padding: 10px 20px; font-size: 0.9rem;">
+                        🖥️ Dashboard Viewer
+                    </button>
+                </div>
                 <p style="color: var(--secondary); margin-top: 10px;">
                     Sistema de controle para impressoras Bestcode (CIJ/TIJ)
                 </p>
@@ -1307,6 +1312,102 @@
         }
         
         inicializarApp();
+
+        // Dashboard Viewer - Abre dashboard em nova janela sem menus
+        function abrirDashboardViewer() {
+            const viewerWindow = window.open('', 'DashboardViewer', 'width=800,height=600');
+            
+            const htmlContent = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Viewer - CMMS Bestcode</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #64748b;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --background: #f1f5f9;
+            --surface: #ffffff;
+            --text: #1e293b;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background: var(--background); color: var(--text); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 30px; }
+        h1 { color: var(--primary); font-size: 2rem; margin-bottom: 10px; }
+        .subtitle { color: var(--secondary); font-size: 1rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .stat-card { background: var(--surface); padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; }
+        .stat-value { font-size: 3rem; font-weight: bold; color: var(--primary); margin-bottom: 10px; }
+        .stat-label { color: var(--secondary); font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; }
+        .last-update { text-align: center; margin-top: 30px; color: var(--secondary); font-size: 0.9rem; }
+        @media (max-width: 768px) { .stats-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Dashboard CMMS Bestcode</h1>
+            <p class="subtitle">Visão Geral em Tempo Real</p>
+        </header>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalOS">0</div>
+                <div class="stat-label">Total de O.S.</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="osAbertas" style="color: var(--danger);">0</div>
+                <div class="stat-label">Em Aberto</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="osAndamento" style="color: var(--warning);">0</div>
+                <div class="stat-label">Em Andamento</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="osConcluidas" style="color: var(--success);">0</div>
+                <div class="stat-label">Concluídas</div>
+            </div>
+        </div>
+        
+        <div class="last-update">
+            Última atualização: <span id="lastUpdate">--:--:--</span>
+        </div>
+    </div>
+
+    <script>
+        function atualizarDashboard() {
+            try {
+                const ordensSalvas = localStorage.getItem('cmms_ordens');
+                if (ordensSalvas) {
+                    const ordensServico = JSON.parse(ordensSalvas);
+                    document.getElementById('totalOS').textContent = ordensServico.length;
+                    document.getElementById('osAbertas').textContent = ordensServico.filter(o => o.status === 'Aberto').length;
+                    document.getElementById('osAndamento').textContent = ordensServico.filter(o => o.status === 'Andamento').length;
+                    document.getElementById('osConcluidas').textContent = ordensServico.filter(o => o.status === 'Concluido').length;
+                    
+                    const now = new Date();
+                    document.getElementById('lastUpdate').textContent = now.toLocaleTimeString('pt-BR');
+                }
+            } catch (e) {
+                console.error('Erro ao atualizar dashboard:', e);
+            }
+        }
+        
+        // Atualizar imediatamente e depois a cada 5 segundos
+        atualizarDashboard();
+        setInterval(atualizarDashboard, 5000);
+    <\/script>
+</body>
+</html>`;
+            
+            viewerWindow.document.write(htmlContent);
+            viewerWindow.document.close();
+        }
     </script>
 </body>
 </html>
