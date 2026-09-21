@@ -392,7 +392,7 @@
             </div>
         </header>
 
-        <div class="stats-grid">
+        <div class="stats-grid" id="statsGrid">
             <div class="stat-card">
                 <div class="stat-value" id="totalOS">0</div>
                 <div class="stat-label">Total de O.S.</div>
@@ -1111,6 +1111,14 @@
                 menuItem.classList.add('active');
             }
             
+            // Mostrar/ocultar cards da dashboard
+            const statsGrid = document.getElementById('statsGrid');
+            if (tabId === 'dashboard') {
+                statsGrid.style.display = 'grid';
+            } else {
+                statsGrid.style.display = 'none';
+            }
+            
             // Fechar menu no mobile após clicar
             if (window.innerWidth <= 768) {
                 toggleMenu();
@@ -1292,7 +1300,13 @@
         }
 
         // Inicializar aplicação
-        carregarDadosExemplo();
+        function inicializarApp() {
+            carregarDadosExemplo();
+            // Mostrar cards apenas na dashboard (que é a aba ativa inicial)
+            document.getElementById('statsGrid').style.display = 'grid';
+        }
+        
+        inicializarApp();
     </script>
 </body>
 </html>
