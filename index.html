@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMMS - Assistência Técnica Bestcode</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #64748b;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --background: #f1f5f9;
+            --surface: #ffffff;
+            --text: #1e293b;
+            --sidebar-width: 260px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--surface);
+            min-height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            color: var(--text);
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: var(--background);
+            color: var(--primary);
+        }
+
+        .nav-item.active {
+            background: #eff6ff;
+            color: var(--primary);
+            border-left-color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 24px;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1001;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.3rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 80px 16px 16px;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: var(--surface);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 1.3rem;
+            color: var(--text);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--secondary);
+            font-size: 0.9rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: var(--surface);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--secondary);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        button {
+            padding: 12px 24px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        button.secondary {
+            background: var(--secondary);
+        }
+
+        button.success {
+            background: var(--success);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: var(--background);
+            font-weight: 600;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-aberto { background: #dbeafe; color: #1e40af; }
+        .status-andamento { background: #fef3c7; color: #92400e; }
+        .status-concluido { background: #dcfce7; color: #166534; }
+        .status-cancelado { background: #fee2e2; color: #991b1b; }
+        .status-aguardando-pecas { background: #fce7f3; color: #9d174d; }
+
+        .model-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            background: var(--primary);
+            color: white;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-right: 5px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            margin-right: 5px;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            table {
+                font-size: 0.85rem;
+            }
+            
+            .tabs {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+    
+    <!-- Overlay for mobile -->
+    <div class="overlay" onclick="toggleMenu()"></div>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">🔧 CMMS Bestcode</div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-item active" onclick="showTab('dashboard')" data-tab="dashboard">
+                <span class="nav-icon">📊</span>
+                <span>Dashboard</span>
+            </div>
+            <div class="nav-item" onclick="showTab('nova-os')" data-tab="nova-os">
+                <span class="nav-icon">➕</span>
+                <span>Nova O.S.</span>
+            </div>
+            <div class="nav-item" onclick="showTab('lista-os')" data-tab="lista-os">
+                <span class="nav-icon">📋</span>
+                <span>Lista de O.S.</span>
+            </div>
+            <div class="nav-item" onclick="showTab('clientes')" data-tab="clientes">
+                <span class="nav-icon">👥</span>
+                <span>Clientes</span>
+            </div>
+            <div class="nav-item" onclick="showTab('equipamentos')" data-tab="equipamentos">
+                <span class="nav-icon">🖨️</span>
+                <span>Equipamentos</span>
+            </div>
+            <div class="nav-item" onclick="showTab('pecas')" data-tab="pecas">
+                <span class="nav-icon">⚙️</span>
+                <span>Peças & Insumos</span>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header>
+            <div>
+                <h2 class="page-title">Assistência Técnica Bestcode</h2>
+                <p style="color: var(--secondary); font-size: 0.9rem;">Controle de equipamentos CIJ/TIJ</p>
+            </div>
+            <div>
+                <span id="currentDate" style="font-weight: 500;"></span>
+            </div>
+        </header>
+
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalOS">0</div>
+                <div class="stat-label">Total de O.S.</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="osAbertas">0</div>
+                <div class="stat-label">Em Aberto</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="osAndamento">0</div>
+                <div class="stat-label">Em Andamento</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="osConcluidas">0</div>
+                <div class="stat-label">Concluídas</div>
+            </div>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" class="tab-content active">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h2>Visão Geral</h2>
+                    <button onclick="abrirDashboardViewer()" style="background: var(--success); padding: 10px 20px; font-size: 0.9rem;">
+                        🖥️ Dashboard Viewer
+                    </button>
+                </div>
+                <p style="color: var(--secondary); margin-top: 10px;">
+                    Sistema de controle para impressoras Bestcode (CIJ/TIJ)
+                </p>
+                <div style="margin-top: 20px;">
+                    <h3>Modelos Suportados:</h3>
+                    <div style="margin-top: 10px;">
+                        <span class="model-tag">Bestcode 81</span>
+                        <span class="model-tag">Bestcode 82</span>
+                        <span class="model-tag">Bestcode 86</span>
+                        <span class="model-tag">Bestcode 87</span>
+                        <span class="model-tag">Bestcode 88</span>
+                        <span class="model-tag">Quantum</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nova O.S. -->
+        <div id="nova-os" class="tab-content">
+            <div class="card">
+                <h2>Nova Ordem de Serviço</h2>
+                <form id="osForm" onsubmit="criarOS(event)">
+                    <div class="form-group">
+                        <label>Tipo de Serviço</label>
+                        <select id="tipoServico" required>
+                            <option value="">Selecione...</option>
+                            <option value="Preventiva">Manutenção Preventiva</option>
+                            <option value="Corretiva">Manutenção Corretiva</option>
+                            <option value="Instalacao">Instalação</option>
+                            <option value="Treinamento">Treinamento</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Modelo do Equipamento</label>
+                        <select id="modeloEquipamento" required>
+                            <option value="">Selecione...</option>
+                            <option value="Bestcode 81">Bestcode 81</option>
+                            <option value="Bestcode 82">Bestcode 82</option>
+                            <option value="Bestcode 86">Bestcode 86</option>
+                            <option value="Bestcode 87">Bestcode 87</option>
+                            <option value="Bestcode 88">Bestcode 88</option>
+                            <option value="Quantum">Quantum</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Número de Série</label>
+                        <input type="text" id="numSerie" placeholder="Ex: BC81-2024-001" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Cliente</label>
+                        <select id="clienteSelect" required>
+                            <option value="">Selecione um cliente...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Descrição do Problema</label>
+                        <textarea id="descricaoProblema" rows="4" placeholder="Descreva o problema ou serviço necessário"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Técnico Responsável</label>
+                        <select id="tecnicoResponsavel">
+                            <option value="">Selecione...</option>
+                            <option value="João Silva">João Silva</option>
+                            <option value="Maria Santos">Maria Santos</option>
+                            <option value="Carlos Oliveira">Carlos Oliveira</option>
+                        </select>
+                    </div>
+
+                    <button type="submit">Criar O.S.</button>
+                    <button type="button" class="secondary" onclick="limparFormulario()">Limpar</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Lista de O.S. -->
+        <div id="lista-os" class="tab-content">
+            <div class="card">
+                <h2>Ordens de Serviço</h2>
+                <div style="margin: 15px 0;">
+                    <input type="text" id="buscaOS" placeholder="Buscar por número de série, cliente..." onkeyup="filtrarOS()">
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tipo</th>
+                            <th>Modelo</th>
+                            <th>Nº Série</th>
+                            <th>Cliente</th>
+                            <th>Técnico</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaOS">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Clientes -->
+        <div id="clientes" class="tab-content">
+            <div class="card">
+                <h2>Gerenciar Clientes</h2>
+                <form id="clienteForm" onsubmit="criarCliente(event)" style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 15px; margin-bottom: 20px; align-items: end;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Nome do Cliente</label>
+                        <input type="text" id="nomeCliente" placeholder="Nome da empresa" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>CNPJ/CPF</label>
+                        <input type="text" id="docCliente" placeholder="00.000.000/0000-00">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Telefone</label>
+                        <input type="text" id="telCliente" placeholder="(00) 0000-0000">
+                    </div>
+                    <button type="submit" style="height: 42px;">Adicionar Cliente</button>
+                </form>
+                <div style="margin: 15px 0;">
+                    <input type="text" id="buscaCliente" placeholder="Buscar cliente..." onkeyup="filtrarClientes()">
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Cliente</th>
+                            <th>CNPJ/CPF</th>
+                            <th>Telefone</th>
+                            <th>Equipamentos</th>
+                            <th>O.S. Total</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaClientes">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Equipamentos -->
+        <div id="equipamentos" class="tab-content">
+            <div class="card">
+                <h2>Base de Equipamentos</h2>
+                <button onclick="abrirModalEquipamento()" style="margin-bottom: 15px; background: var(--success);">+ Novo Equipamento</button>
+                <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <input type="text" id="buscaEquipCliente" placeholder="Filtrar por Cliente..." onkeyup="filtrarEquipamentos()" style="flex: 1; min-width: 200px; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                    <select id="buscaEquipModelo" onchange="filtrarEquipamentos()" style="flex: 1; min-width: 200px; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                        <option value="">Todos os Modelos</option>
+                        <option value="Bestcode 81">Bestcode 81</option>
+                        <option value="Bestcode 82">Bestcode 82</option>
+                        <option value="Bestcode 86">Bestcode 86</option>
+                        <option value="Bestcode 87">Bestcode 87</option>
+                        <option value="Bestcode 88">Bestcode 88</option>
+                        <option value="Quantum">Quantum</option>
+                    </select>
+                    <input type="text" id="buscaEquipSerie" placeholder="Filtrar por Nº Série..." onkeyup="filtrarEquipamentos()" style="flex: 1; min-width: 200px; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Modelo</th>
+                            <th>Nº Série</th>
+                            <th>Cliente</th>
+                            <th>Data Instalação</th>
+                            <th>Status</th>
+                            <th>O.S. Relacionadas</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaEquipamentos">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Peças & Insumos -->
+        <div id="pecas" class="tab-content">
+            <div class="card">
+                <h2>Catálogo de Peças e Insumos</h2>
+                <p style="color: var(--secondary); margin-bottom: 20px;">Lista técnica de peças e insumos compatíveis com equipamentos Bestcode</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div>
+                        <h3>Insumos (Tintas/Solventes)</h3>
+                        <ul style="list-style: none; margin-top: 10px;">
+                            <li style="padding: 10px; border-bottom: 1px solid #e2e8f0;">
+                                Tinta MEK - Bestcode 81/82
+                            </li>
+                            <li style="padding: 10px; border-bottom: 1px solid #e2e8f0;">
+                                Solvente MEK - Bestcode 86/87
+                            </li>
+                            <li style="padding: 10px; border-bottom: 1px solid #e2e8f0;">
+                                Tinta Quantum
+                            </li>
+                            <li style="padding: 10px; border-bottom: 1px solid #e2e8f0;">
+                                Solvente Quantum
+                            </li>
+                            <li style="padding: 10px; border-bottom: 1px solid #e2e8f0;">
+                                Aditivo Condutividade
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Peças de Reposição</h3>
+                        <ul style="list-style: none; margin-top: 10px;">
+                            <li style="padding: 10px; border-bottom: 1px solid #e2e8f0;">
+                                Cabeça de Impressão TIJ
+                            </li>
+                            <li style="padding: 10px; border-bottom: 1px solid #e2e8f0;">
+                                Bomba de Circulação CIJ
+                            </li>
+                            <li style="padding: 10px; border-bottom: 1px solid #e2e8f0;">
+                                Filtro Principal
+                            </li>
+                            <li style="padding: 10px; border-bottom: 1px solid #e2e8f0;">
+                                Filtro de Linha
+                            </li>
+                            <li style="padding: 10px; border-bottom: 1px solid #e2e8f0;">
+                                Válvula Solenóide
+                            </li>
+                            <li style="padding: 10px; border-bottom: 1px solid #e2e8f0;">
+                                Sensor de Nível
+                            </li>
+                            <li style="padding: 10px; border-bottom: 1px solid #e2e8f0;">
+                                Placa Controladora
+                            </li>
+                            <li style="padding: 10px; border-bottom: 1px solid #e2e8f0;">
+                                Display Interface
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Equipamento -->
+        <div id="modalEquipamento" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; overflow:auto; background-color:rgba(0,0,0,0.5);">
+            <div style="background-color:#fff; margin:5% auto; padding:30px; border:1px solid #888; width:80%; max-width:700px; border-radius:12px;">
+                <span onclick="fecharModalEquipamento()" style="color:#aaa; float:right; font-size:28px; font-weight:bold; cursor:pointer;">&times;</span>
+                <h2 style="margin-bottom:20px; color:var(--primary);" id="modalEquipamentoTitulo">Novo Equipamento</h2>
+                
+                <form id="formEquipamento" onsubmit="salvarEquipamento(event)">
+                    <input type="hidden" id="editEquipIndex" value="">
+                    
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="display:block; margin-bottom:5px; font-weight:600;">Modelo do Equipamento:</label>
+                        <select id="editModelo" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                            <option value="">Selecione...</option>
+                            <option value="Bestcode 81">Bestcode 81</option>
+                            <option value="Bestcode 82">Bestcode 82</option>
+                            <option value="Bestcode 86">Bestcode 86</option>
+                            <option value="Bestcode 87">Bestcode 87</option>
+                            <option value="Bestcode 88">Bestcode 88</option>
+                            <option value="Quantum">Quantum</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="display:block; margin-bottom:5px; font-weight:600;">Número de Série:</label>
+                        <input type="text" id="editNumSerie" placeholder="Ex: BC81-2024-001" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="display:block; margin-bottom:5px; font-weight:600;">Cliente:</label>
+                        <select id="editCliente" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="display:block; margin-bottom:5px; font-weight:600;">Data de Instalação:</label>
+                        <input type="date" id="editDataInstalacao" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label style="display:block; margin-bottom:5px; font-weight:600;">Status:</label>
+                        <select id="editStatusEquip" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                            <option value="Ativo">Ativo</option>
+                            <option value="Inativo">Inativo</option>
+                            <option value="Manutencao">Em Manutenção</option>
+                            <option value="Baixa">Baixa</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom:20px;">
+                        <label style="display:block; margin-bottom:5px; font-weight:600;">Observações:</label>
+                        <textarea id="editObsEquip" rows="3" placeholder="Observações adicionais..." style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;"></textarea>
+                    </div>
+
+                    <div style="margin-top:20px; text-align:right;">
+                        <button type="button" onclick="fecharModalEquipamento()" style="padding:10px 20px; margin-right:10px; border:none; border-radius:6px; background-color:var(--secondary); color:white; cursor:pointer;">Cancelar</button>
+                        <button type="submit" style="padding:10px 20px; border:none; border-radius:6px; background-color:var(--primary); color:white; cursor:pointer;">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal de Detalhes da O.S. -->
+    <div id="modalOS" class="modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; overflow:auto; background-color:rgba(0,0,0,0.5);">
+        <div class="modal-content" style="background-color:#fff; margin:5% auto; padding:30px; border:1px solid #888; width:80%; max-width:900px; border-radius:12px;">
+            <span class="close" onclick="fecharModal()" style="color:#aaa; float:right; font-size:28px; font-weight:bold; cursor:pointer;">&times;</span>
+            <h2 style="margin-bottom:20px; color:var(--primary);">Detalhes da O.S. #<span id="modalOSNum"></span></h2>
+            
+            <form id="formDetalhesOS" onsubmit="salvarDetalhesOS(event)">
+                <input type="hidden" id="editOSId">
+                
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px;">
+                    <div>
+                        <h3 style="margin-bottom:15px; color:var(--text);">🔧 Dados Técnicos do Equipamento</h3>
+                        <div class="form-group" style="margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:600;">Horas de Uso (Hobbs):</label>
+                            <input type="number" id="editHorasUso" placeholder="Ex: 12500" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                        </div>
+                        <div class="form-group" style="margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:600;">Contador de Jatos/Injeções:</label>
+                            <input type="number" id="editContadorJatos" placeholder="Ex: 45000000" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                        </div>
+                        <div class="form-group" style="margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:600;">Motivo da Parada:</label>
+                            <select id="editMotivoParada" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                                <option value="">Selecione...</option>
+                                <option value="Falha Elétrica">Falha Elétrica</option>
+                                <option value="Entupimento Cabeçote">Entupimento Cabeçote</option>
+                                <option value="Vazamento Solvente">Vazamento Solvente</option>
+                                <option value="Erro de Software">Erro de Software</option>
+                                <option value="Manutenção Preventiva">Manutenção Preventiva</option>
+                                <option value="Troca de Filtros">Troca de Filtros</option>
+                                <option value="Outros">Outros</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 style="margin-bottom:15px; color:var(--text);">📝 Diagnóstico e Solução</h3>
+                        <div class="form-group" style="margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:600;">Diagnóstico Técnico:</label>
+                            <textarea id="editDiagnostico" rows="3" placeholder="Descreva o problema encontrado..." style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;"></textarea>
+                        </div>
+                        <div class="form-group" style="margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:600;">Solução Aplicada:</label>
+                            <textarea id="editSolucao" rows="3" placeholder="Descreva o que foi feito..." style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px;">
+                    <div>
+                        <h3 style="margin-bottom:15px; color:var(--text);">📦 Peças e Insumos Utilizados</h3>
+                        <div class="form-group" style="margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:600;">Peças Trocadas:</label>
+                            <textarea id="editPecasTrocadas" rows="2" placeholder="Ex: Filtro de linha, Bomba principal..." style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;"></textarea>
+                        </div>
+                        <div class="form-group" style="margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:600;">Insumos Consumidos (ml):</label>
+                            <div style="display:flex; gap:10px; margin-top:5px;">
+                                <input type="number" id="editSolventeMl" placeholder="Solvente (ml)" style="width:50%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                                <input type="number" id="editTintaMl" placeholder="Tinta (ml)" style="width:50%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 style="margin-bottom:15px; color:var(--text);">⏱️ Fechamento</h3>
+                        <div class="form-group" style="margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:600;">Tempo Total (horas):</label>
+                            <input type="number" step="0.5" id="editTempoTotal" placeholder="Ex: 2.5" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                        </div>
+                        <div class="form-group" style="margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:600;">Observações Finais:</label>
+                            <textarea id="editObsFinais" rows="2" placeholder="Recomendações ao cliente..." style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;"></textarea>
+                        </div>
+                        <div class="form-group" style="margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:600;">Status Atual:</label>
+                            <select id="editStatus" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                                <option value="Aberto">Aberto</option>
+                                <option value="Andamento">Em Andamento</option>
+                                <option value="Concluido">Concluído</option>
+                                <option value="Aguardando Pecas">Aguardando Peças</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top:20px; text-align:right;">
+                    <button type="button" class="btn-secondary" onclick="fecharModal()" style="padding:10px 20px; margin-right:10px; border:none; border-radius:6px; background-color:var(--secondary); color:white; cursor:pointer;">Cancelar</button>
+                    <button type="submit" class="btn-primary" style="padding:10px 20px; border:none; border-radius:6px; background-color:var(--primary); color:white; cursor:pointer;">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Dados iniciais
+        let ordensServico = [];
+        let equipamentos = [];
+        let clientes = [];
+        let contadorOS = 1;
+
+        // Data atual
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('pt-BR');
+
+        // Atualizar select de clientes no formulário de O.S.
+        function atualizarSelectClientes() {
+            const select = document.getElementById('clienteSelect');
+            select.innerHTML = '<option value="">Selecione um cliente...</option>';
+            clientes.forEach(cliente => {
+                const option = document.createElement('option');
+                option.value = cliente.nome;
+                option.textContent = cliente.nome;
+                select.appendChild(option);
+            });
+        }
+
+        // Criar novo cliente
+        function criarCliente(event) {
+            event.preventDefault();
+            
+            const cliente = {
+                id: clientes.length + 1,
+                nome: document.getElementById('nomeCliente').value,
+                documento: document.getElementById('docCliente').value,
+                telefone: document.getElementById('telCliente').value,
+                dataCadastro: new Date().toLocaleDateString('pt-BR')
+            };
+
+            clientes.push(cliente);
+            localStorage.setItem('cmms_clientes', JSON.stringify(clientes));
+            
+            alert('Cliente cadastrado com sucesso!');
+            document.getElementById('clienteForm').reset();
+            renderizarClientes();
+            atualizarSelectClientes();
+        }
+
+        // Renderizar tabela de clientes
+        function renderizarClientes() {
+            const tbody = document.getElementById('tabelaClientes');
+            tbody.innerHTML = '';
+
+            clientes.forEach(cliente => {
+                const numEquipamentos = equipamentos.filter(e => e.cliente === cliente.nome).length;
+                const numOS = ordensServico.filter(o => o.cliente === cliente.nome).length;
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${cliente.id}</td>
+                    <td><strong>${cliente.nome}</strong></td>
+                    <td>${cliente.documento || '-'}</td>
+                    <td>${cliente.telefone || '-'}</td>
+                    <td>${numEquipamentos}</td>
+                    <td>${numOS}</td>
+                    <td>
+                        <button class="action-btn" onclick="verEquipamentosCliente('${cliente.nome}')">📋</button>
+                        <button class="action-btn secondary" onclick="editarCliente(${cliente.id})">✏️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Filtrar clientes
+        function filtrarClientes() {
+            const termo = document.getElementById('buscaCliente').value.toLowerCase();
+            const linhas = document.querySelectorAll('#tabelaClientes tr');
+
+            linhas.forEach(linha => {
+                const texto = linha.textContent.toLowerCase();
+                linha.style.display = texto.includes(termo) ? '' : 'none';
+            });
+        }
+
+        // Ver equipamentos do cliente
+        function verEquipamentosCliente(nomeCliente) {
+            showTab('equipamentos');
+            const equipCliente = equipamentos.filter(e => e.cliente === nomeCliente);
+            alert(`${nomeCliente} possui ${equipCliente.length} equipamento(s) registrado(s).`);
+        }
+
+        // Editar cliente (simples)
+        function editarCliente(id) {
+            const cliente = clientes.find(c => c.id === id);
+            if (cliente) {
+                document.getElementById('nomeCliente').value = cliente.nome;
+                document.getElementById('docCliente').value = cliente.documento || '';
+                document.getElementById('telCliente').value = cliente.telefone || '';
+                // Remove o cliente antigo para recriar com novos dados
+                clientes = clientes.filter(c => c.id !== id);
+                localStorage.setItem('cmms_clientes', JSON.stringify(clientes));
+                renderizarClientes();
+                atualizarSelectClientes();
+            }
+        }
+
+        // Criar nova O.S.
+        function criarOS(event) {
+            event.preventDefault();
+            
+            const os = {
+                id: contadorOS++,
+                tipo: document.getElementById('tipoServico').value,
+                modelo: document.getElementById('modeloEquipamento').value,
+                numSerie: document.getElementById('numSerie').value,
+                cliente: document.getElementById('clienteSelect').value,
+                descricao: document.getElementById('descricaoProblema').value,
+                tecnico: document.getElementById('tecnicoResponsavel').value,
+                status: 'Aberto',
+                dataAbertura: new Date().toLocaleDateString('pt-BR')
+            };
+
+            ordensServico.push(os);
+            
+            // Adicionar equipamento se não existir
+            const equipExistente = equipamentos.find(e => e.numSerie === os.numSerie);
+            if (!equipExistente) {
+                equipamentos.push({
+                    modelo: os.modelo,
+                    numSerie: os.numSerie,
+                    cliente: os.cliente,
+                    dataInstalacao: os.dataAbertura,
+                    status: 'Ativo',
+                    osRelacionadas: 1
+                });
+                localStorage.setItem('cmms_equipamentos', JSON.stringify(equipamentos));
+            } else {
+                equipExistente.osRelacionadas++;
+            }
+
+            // Salvar no LocalStorage
+            localStorage.setItem('cmms_ordens', JSON.stringify(ordensServico));
+            localStorage.setItem('cmms_contador', contadorOS.toString());
+
+            alert(`O.S. #${os.id} criada com sucesso!`);
+            limparFormulario();
+            atualizarDashboard();
+            showTab('lista-os');
+        }
+
+        function limparFormulario() {
+            document.getElementById('osForm').reset();
+        }
+
+        // Renderizar tabela de O.S.
+        function renderizarOS() {
+            const tbody = document.getElementById('tabelaOS');
+            tbody.innerHTML = '';
+
+            ordensServico.forEach(os => {
+                const tr = document.createElement('tr');
+                tr.onclick = () => abrirModalOS(os.id);
+                tr.style.cursor = 'pointer';
+                tr.title = "Clique para editar detalhes";
+                tr.innerHTML = `
+                    <td>#${os.id}</td>
+                    <td>${os.tipo}</td>
+                    <td>${os.modelo}</td>
+                    <td>${os.numSerie}</td>
+                    <td>${os.cliente}</td>
+                    <td>${os.tecnico || '-'}</td>
+                    <td><span class="status-badge status-${os.status.toLowerCase().replace(' ', '-')}">${os.status}</span></td>
+                    <td>
+                        <button class="action-btn success" onclick="event.stopPropagation(); atualizarStatus(${os.id}, 'Concluido')">✓</button>
+                        <button class="action-btn secondary" onclick="event.stopPropagation(); atualizarStatus(${os.id}, 'Andamento')">▶</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Renderizar tabela de equipamentos
+        function renderizarEquipamentos() {
+            const tbody = document.getElementById('tabelaEquipamentos');
+            tbody.innerHTML = '';
+
+            equipamentos.forEach((equip, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span class="model-tag">${equip.modelo}</span></td>
+                    <td>${equip.numSerie}</td>
+                    <td>${equip.cliente}</td>
+                    <td>${equip.dataInstalacao}</td>
+                    <td>${equip.status}</td>
+                    <td>${equip.osRelacionadas}</td>
+                    <td>
+                        <button class="action-btn" onclick="editarEquipamento(${index})" style="background: var(--primary);">✏️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Atualizar status da O.S.
+        function atualizarStatus(id, novoStatus) {
+            const os = ordensServico.find(o => o.id === id);
+            if (os) {
+                os.status = novoStatus;
+                localStorage.setItem('cmms_ordens', JSON.stringify(ordensServico));
+                renderizarOS();
+                atualizarDashboard();
+            }
+        }
+
+        // Filtrar O.S.
+        function filtrarOS() {
+            const termo = document.getElementById('buscaOS').value.toLowerCase();
+            const linhas = document.querySelectorAll('#tabelaOS tr');
+
+            linhas.forEach(linha => {
+                const texto = linha.textContent.toLowerCase();
+                linha.style.display = texto.includes(termo) ? '' : 'none';
+            });
+        }
+
+        // Atualizar dashboard
+        function atualizarDashboard() {
+            document.getElementById('totalOS').textContent = ordensServico.length;
+            document.getElementById('osAbertas').textContent = ordensServico.filter(o => o.status === 'Aberto').length;
+            document.getElementById('osAndamento').textContent = ordensServico.filter(o => o.status === 'Andamento').length;
+            document.getElementById('osConcluidas').textContent = ordensServico.filter(o => o.status === 'Concluido').length;
+        }
+
+        // Dados de exemplo
+        function carregarDadosExemplo() {
+            // Carregar do LocalStorage primeiro
+            const ordensSalvas = localStorage.getItem('cmms_ordens');
+            const equipamentosSalvos = localStorage.getItem('cmms_equipamentos');
+            const clientesSalvos = localStorage.getItem('cmms_clientes');
+            const contadorSalvo = localStorage.getItem('cmms_contador');
+
+            if (ordensSalvas && equipamentosSalvos) {
+                ordensServico = JSON.parse(ordensSalvas);
+                equipamentos = JSON.parse(equipamentosSalvos);
+                if (clientesSalvos) {
+                    clientes = JSON.parse(clientesSalvos);
+                }
+                if (contadorSalvo) {
+                    contadorOS = parseInt(contadorSalvo);
+                }
+            } else {
+                // Dados de exemplo apenas se não houver dados salvos
+                clientes = [
+                    { id: 1, nome: 'Indústria A', documento: '00.000.000/0001-00', telefone: '(11) 1111-1111', dataCadastro: '01/01/2024' },
+                    { id: 2, nome: 'Empresa B', documento: '11.111.111/0001-11', telefone: '(11) 2222-2222', dataCadastro: '15/01/2024' },
+                    { id: 3, nome: 'Fábrica C', documento: '22.222.222/0001-22', telefone: '(11) 3333-3333', dataCadastro: '20/01/2024' }
+                ];
+
+                ordensServico = [
+                    { id: 1, tipo: 'Preventiva', modelo: 'Bestcode 81', numSerie: 'BC81-2024-001', cliente: 'Indústria A', tecnico: 'João Silva', status: 'Concluido', dataAbertura: '01/01/2024' },
+                    { id: 2, tipo: 'Corretiva', modelo: 'Bestcode 86', numSerie: 'BC86-2024-015', cliente: 'Empresa B', tecnico: 'Maria Santos', status: 'Andamento', dataAbertura: '15/01/2024' },
+                    { id: 3, tipo: 'Instalacao', modelo: 'Quantum', numSerie: 'QT-2024-003', cliente: 'Fábrica C', tecnico: 'Carlos Oliveira', status: 'Aberto', dataAbertura: '20/01/2024' }
+                ];
+
+                equipamentos = [
+                    { modelo: 'Bestcode 81', numSerie: 'BC81-2024-001', cliente: 'Indústria A', dataInstalacao: '01/01/2024', status: 'Ativo', osRelacionadas: 1 },
+                    { modelo: 'Bestcode 86', numSerie: 'BC86-2024-015', cliente: 'Empresa B', dataInstalacao: '15/01/2024', status: 'Ativo', osRelacionadas: 1 },
+                    { modelo: 'Quantum', numSerie: 'QT-2024-003', cliente: 'Fábrica C', dataInstalacao: '20/01/2024', status: 'Ativo', osRelacionadas: 1 }
+                ];
+
+                contadorOS = 4;
+                
+                // Salvar dados iniciais
+                localStorage.setItem('cmms_clientes', JSON.stringify(clientes));
+            }
+
+            atualizarDashboard();
+            atualizarSelectClientes();
+        }
+
+        // Toggle menu mobile
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // Navegação entre abas
+        function showTab(tabId) {
+            // Esconder todas as abas
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            
+            // Remover active de todos os itens do menu
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            
+            // Mostrar aba selecionada
+            document.getElementById(tabId).classList.add('active');
+            
+            // Ativar item do menu correspondente
+            const menuItem = document.querySelector(`[data-tab="${tabId}"]`);
+            if (menuItem) {
+                menuItem.classList.add('active');
+            }
+            
+            // Mostrar/ocultar cards da dashboard
+            const statsGrid = document.getElementById('statsGrid');
+            if (tabId === 'dashboard') {
+                statsGrid.style.display = 'grid';
+            } else {
+                statsGrid.style.display = 'none';
+            }
+            
+            // Fechar menu no mobile após clicar
+            if (window.innerWidth <= 768) {
+                toggleMenu();
+            }
+            
+            // Renderizar dados se necessário
+            if (tabId === 'lista-os') renderizarOS();
+            if (tabId === 'equipamentos') renderizarEquipamentos();
+            if (tabId === 'clientes') renderizarClientes();
+        }
+
+        // Funções do Modal
+        function abrirModalOS(id) {
+            const os = ordensServico.find(o => o.id === id);
+            if (!os) return;
+
+            document.getElementById('editOSId').value = os.id;
+            document.getElementById('modalOSNum').innerText = os.id;
+            
+            // Preencher campos técnicos
+            document.getElementById('editHorasUso').value = os.horasUso || '';
+            document.getElementById('editContadorJatos').value = os.contadorJatos || '';
+            document.getElementById('editMotivoParada').value = os.motivoParada || '';
+            
+            document.getElementById('editDiagnostico').value = os.diagnostico || '';
+            document.getElementById('editSolucao').value = os.solucao || '';
+            
+            document.getElementById('editPecasTrocadas').value = os.pecasTrocadas || '';
+            document.getElementById('editSolventeMl').value = os.solventeMl || '';
+            document.getElementById('editTintaMl').value = os.tintaMl || '';
+            
+            document.getElementById('editTempoTotal').value = os.tempoTotal || '';
+            document.getElementById('editObsFinais').value = os.obsFinais || '';
+            document.getElementById('editStatus').value = os.status;
+
+            document.getElementById('modalOS').style.display = 'block';
+        }
+
+        function fecharModal() {
+            document.getElementById('modalOS').style.display = 'none';
+        }
+
+        function salvarDetalhesOS(e) {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('editOSId').value);
+            const index = ordensServico.findIndex(o => o.id === id);
+            
+            if (index !== -1) {
+                ordensServico[index].horasUso = document.getElementById('editHorasUso').value;
+                ordensServico[index].contadorJatos = document.getElementById('editContadorJatos').value;
+                ordensServico[index].motivoParada = document.getElementById('editMotivoParada').value;
+                ordensServico[index].diagnostico = document.getElementById('editDiagnostico').value;
+                ordensServico[index].solucao = document.getElementById('editSolucao').value;
+                ordensServico[index].pecasTrocadas = document.getElementById('editPecasTrocadas').value;
+                ordensServico[index].solventeMl = document.getElementById('editSolventeMl').value;
+                ordensServico[index].tintaMl = document.getElementById('editTintaMl').value;
+                ordensServico[index].tempoTotal = document.getElementById('editTempoTotal').value;
+                ordensServico[index].obsFinais = document.getElementById('editObsFinais').value;
+                ordensServico[index].status = document.getElementById('editStatus').value;
+
+                // Salvar no LocalStorage
+                localStorage.setItem('cmms_ordens', JSON.stringify(ordensServico));
+                
+                renderizarOS();
+                atualizarDashboard();
+                fecharModal();
+                alert('Ordem de Serviço atualizada com sucesso!');
+            }
+        }
+
+        // Fechar modal ao clicar fora
+        window.onclick = function(event) {
+            const modal = document.getElementById('modalOS');
+            if (event.target == modal) {
+                fecharModal();
+            }
+        }
+
+        // Funções do Modal de Equipamento
+        function abrirModalEquipamento(index = null) {
+            const selectCliente = document.getElementById('editCliente');
+            selectCliente.innerHTML = '<option value="">Selecione...</option>';
+            
+            clientes.forEach(cliente => {
+                const option = document.createElement('option');
+                option.value = cliente.nome;
+                option.textContent = cliente.nome;
+                selectCliente.appendChild(option);
+            });
+
+            if (index !== null && index >= 0 && index < equipamentos.length) {
+                const equip = equipamentos[index];
+                document.getElementById('editEquipIndex').value = index;
+                document.getElementById('editModelo').value = equip.modelo;
+                document.getElementById('editNumSerie').value = equip.numSerie;
+                document.getElementById('editCliente').value = equip.cliente;
+                document.getElementById('editDataInstalacao').value = equip.dataInstalacao;
+                document.getElementById('editStatusEquip').value = equip.status;
+                document.getElementById('editObsEquip').value = equip.observacoes || '';
+            } else {
+                document.getElementById('formEquipamento').reset();
+                document.getElementById('editEquipIndex').value = '';
+            }
+
+            document.getElementById('modalEquipamento').style.display = 'block';
+        }
+
+        function fecharModalEquipamento() {
+            document.getElementById('modalEquipamento').style.display = 'none';
+        }
+
+        function salvarEquipamento(event) {
+            event.preventDefault();
+            
+            const index = document.getElementById('editEquipIndex').value;
+            const equipamento = {
+                modelo: document.getElementById('editModelo').value,
+                numSerie: document.getElementById('editNumSerie').value,
+                cliente: document.getElementById('editCliente').value,
+                dataInstalacao: document.getElementById('editDataInstalacao').value,
+                status: document.getElementById('editStatusEquip').value,
+                observacoes: document.getElementById('editObsEquip').value,
+                osRelacionadas: 0
+            };
+
+            if (index !== '') {
+                // Editar existente
+                equipamento.osRelacionadas = equipamentos[index].osRelacionadas;
+                equipamentos[index] = equipamento;
+            } else {
+                // Novo equipamento
+                equipamentos.push(equipamento);
+            }
+
+            localStorage.setItem('cmms_equipamentos', JSON.stringify(equipamentos));
+            renderizarEquipamentos();
+            fecharModalEquipamento();
+            alert('Equipamento salvo com sucesso!');
+        }
+
+        function editarEquipamento(index) {
+            event.stopPropagation();
+            abrirModalEquipamento(index);
+        }
+
+        function filtrarEquipamentos() {
+            const cliente = document.getElementById('buscaEquipCliente').value.toLowerCase();
+            const modelo = document.getElementById('buscaEquipModelo').value;
+            const serie = document.getElementById('buscaEquipSerie').value.toLowerCase();
+            const linhas = document.querySelectorAll('#tabelaEquipamentos tr');
+
+            linhas.forEach(linha => {
+                const celulas = linha.querySelectorAll('td');
+                if (celulas.length === 0) return; // Ignora cabeçalho
+                
+                const modeloCelula = celulas[0].textContent.toLowerCase();
+                const serieCelula = celulas[1].textContent.toLowerCase();
+                const clienteCelula = celulas[2].textContent.toLowerCase();
+                
+                const matchCliente = cliente === '' || clienteCelula.includes(cliente);
+                const matchModelo = modelo === '' || modeloCelula.includes(modelo.toLowerCase());
+                const matchSerie = serie === '' || serieCelula.includes(serie);
+                
+                linha.style.display = (matchCliente && matchModelo && matchSerie) ? '' : 'none';
+            });
+        }
+
+        // Fechar modal ao clicar fora
+        window.onclick = function(event) {
+            const modalOS = document.getElementById('modalOS');
+            const modalEquip = document.getElementById('modalEquipamento');
+            
+            if (event.target == modalOS) {
+                fecharModal();
+            }
+            if (event.target == modalEquip) {
+                fecharModalEquipamento();
+            }
+        }
+
+        // Inicializar aplicação
+        function inicializarApp() {
+            carregarDadosExemplo();
+            // Mostrar cards apenas na dashboard (que é a aba ativa inicial)
+            document.getElementById('statsGrid').style.display = 'grid';
+        }
+        
+        inicializarApp();
+
+        // Dashboard Viewer - Abre dashboard em nova janela sem menus
+        function abrirDashboardViewer() {
+            const viewerWindow = window.open('', 'DashboardViewer', 'width=800,height=600');
+            
+            const htmlContent = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Viewer - CMMS Bestcode</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #64748b;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --background: #f1f5f9;
+            --surface: #ffffff;
+            --text: #1e293b;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background: var(--background); color: var(--text); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 30px; }
+        h1 { color: var(--primary); font-size: 2rem; margin-bottom: 10px; }
+        .subtitle { color: var(--secondary); font-size: 1rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .stat-card { background: var(--surface); padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; }
+        .stat-value { font-size: 3rem; font-weight: bold; color: var(--primary); margin-bottom: 10px; }
+        .stat-label { color: var(--secondary); font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; }
+        .last-update { text-align: center; margin-top: 30px; color: var(--secondary); font-size: 0.9rem; }
+        @media (max-width: 768px) { .stats-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Dashboard CMMS Bestcode</h1>
+            <p class="subtitle">Visão Geral em Tempo Real</p>
+        </header>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalOS">0</div>
+                <div class="stat-label">Total de O.S.</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="osAbertas" style="color: var(--danger);">0</div>
+                <div class="stat-label">Em Aberto</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="osAndamento" style="color: var(--warning);">0</div>
+                <div class="stat-label">Em Andamento</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="osConcluidas" style="color: var(--success);">0</div>
+                <div class="stat-label">Concluídas</div>
+            </div>
+        </div>
+        
+        <div class="last-update">
+            Última atualização: <span id="lastUpdate">--:--:--</span>
+        </div>
+    </div>
+
+    <script>
+        function atualizarDashboard() {
+            try {
+                const ordensSalvas = localStorage.getItem('cmms_ordens');
+                if (ordensSalvas) {
+                    const ordensServico = JSON.parse(ordensSalvas);
+                    document.getElementById('totalOS').textContent = ordensServico.length;
+                    document.getElementById('osAbertas').textContent = ordensServico.filter(o => o.status === 'Aberto').length;
+                    document.getElementById('osAndamento').textContent = ordensServico.filter(o => o.status === 'Andamento').length;
+                    document.getElementById('osConcluidas').textContent = ordensServico.filter(o => o.status === 'Concluido').length;
+                    
+                    const now = new Date();
+                    document.getElementById('lastUpdate').textContent = now.toLocaleTimeString('pt-BR');
+                }
+            } catch (e) {
+                console.error('Erro ao atualizar dashboard:', e);
+            }
+        }
+        
+        // Atualizar imediatamente e depois a cada 5 segundos
+        atualizarDashboard();
+        setInterval(atualizarDashboard, 5000);
+    <\/script>
+</body>
+</html>`;
+            
+            viewerWindow.document.write(htmlContent);
+            viewerWindow.document.close();
+        }
+    </script>
+</body>
+</html>
