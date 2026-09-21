@@ -1,1 +1,5 @@
-Nothing needs to be added to .gitignore since the changes only include HTML files (index.html and cmms-bestcode-mvp.html), which are source code files that should not be ignored.
+(index.html is a source file, so no need to add anything to .gitignore)
+
+```gitignore
+
+```

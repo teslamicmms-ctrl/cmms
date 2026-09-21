@@ -581,5 +581,205 @@
         // Inicializar
         carregarDadosExemplo();
     </script>
+
+    <!-- Modal de Detalhes da O.S. -->
+    <div id="modalOS" class="modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; overflow:auto; background-color:rgba(0,0,0,0.5);">
+        <div class="modal-content" style="background-color:#fff; margin:5% auto; padding:30px; border:1px solid #888; width:80%; max-width:900px; border-radius:12px;">
+            <span class="close" onclick="fecharModal()" style="color:#aaa; float:right; font-size:28px; font-weight:bold; cursor:pointer;">&times;</span>
+            <h2 style="margin-bottom:20px; color:var(--primary);">Detalhes da O.S. #<span id="modalOSNum"></span></h2>
+            
+            <form id="formDetalhesOS" onsubmit="salvarDetalhesOS(event)">
+                <input type="hidden" id="editOSId">
+                
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px;">
+                    <div>
+                        <h3 style="margin-bottom:15px; color:var(--text);">🔧 Dados Técnicos do Equipamento</h3>
+                        <div class="form-group" style="margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:600;">Horas de Uso (Hobbs):</label>
+                            <input type="number" id="editHorasUso" placeholder="Ex: 12500" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                        </div>
+                        <div class="form-group" style="margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:600;">Contador de Jatos/Injeções:</label>
+                            <input type="number" id="editContadorJatos" placeholder="Ex: 45000000" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                        </div>
+                        <div class="form-group" style="margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:600;">Motivo da Parada:</label>
+                            <select id="editMotivoParada" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                                <option value="">Selecione...</option>
+                                <option value="Falha Elétrica">Falha Elétrica</option>
+                                <option value="Entupimento Cabeçote">Entupimento Cabeçote</option>
+                                <option value="Vazamento Solvente">Vazamento Solvente</option>
+                                <option value="Erro de Software">Erro de Software</option>
+                                <option value="Manutenção Preventiva">Manutenção Preventiva</option>
+                                <option value="Troca de Filtros">Troca de Filtros</option>
+                                <option value="Outros">Outros</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 style="margin-bottom:15px; color:var(--text);">📝 Diagnóstico e Solução</h3>
+                        <div class="form-group" style="margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:600;">Diagnóstico Técnico:</label>
+                            <textarea id="editDiagnostico" rows="3" placeholder="Descreva o problema encontrado..." style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;"></textarea>
+                        </div>
+                        <div class="form-group" style="margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:600;">Solução Aplicada:</label>
+                            <textarea id="editSolucao" rows="3" placeholder="Descreva o que foi feito..." style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px;">
+                    <div>
+                        <h3 style="margin-bottom:15px; color:var(--text);">📦 Peças e Insumos Utilizados</h3>
+                        <div class="form-group" style="margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:600;">Peças Trocadas:</label>
+                            <textarea id="editPecasTrocadas" rows="2" placeholder="Ex: Filtro de linha, Bomba principal..." style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;"></textarea>
+                        </div>
+                        <div class="form-group" style="margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:600;">Insumos Consumidos (ml):</label>
+                            <div style="display:flex; gap:10px; margin-top:5px;">
+                                <input type="number" id="editSolventeMl" placeholder="Solvente (ml)" style="width:50%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                                <input type="number" id="editTintaMl" placeholder="Tinta (ml)" style="width:50%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 style="margin-bottom:15px; color:var(--text);">⏱️ Fechamento</h3>
+                        <div class="form-group" style="margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:600;">Tempo Total (horas):</label>
+                            <input type="number" step="0.5" id="editTempoTotal" placeholder="Ex: 2.5" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                        </div>
+                        <div class="form-group" style="margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:600;">Observações Finais:</label>
+                            <textarea id="editObsFinais" rows="2" placeholder="Recomendações ao cliente..." style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;"></textarea>
+                        </div>
+                        <div class="form-group" style="margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:600;">Status Atual:</label>
+                            <select id="editStatus" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                                <option value="Aberto">Aberto</option>
+                                <option value="Andamento">Em Andamento</option>
+                                <option value="Concluido">Concluído</option>
+                                <option value="Aguardando Pecas">Aguardando Peças</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top:20px; text-align:right;">
+                    <button type="button" class="btn-secondary" onclick="fecharModal()" style="padding:10px 20px; margin-right:10px; border:none; border-radius:6px; background-color:var(--secondary); color:white; cursor:pointer;">Cancelar</button>
+                    <button type="submit" class="btn-primary" style="padding:10px 20px; border:none; border-radius:6px; background-color:var(--primary); color:white; cursor:pointer;">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Carregar dados do LocalStorage se existir
+        if(localStorage.getItem('cmms_ordens')) {
+            ordensServico = JSON.parse(localStorage.getItem('cmms_ordens'));
+        }
+        if(localStorage.getItem('cmms_equipamentos')) {
+            equipamentos = JSON.parse(localStorage.getItem('cmms_equipamentos'));
+        }
+
+        // Funções do Modal
+        function abrirModalOS(id) {
+            const os = ordensServico.find(o => o.id === id);
+            if (!os) return;
+
+            document.getElementById('editOSId').value = os.id;
+            document.getElementById('modalOSNum').innerText = os.id;
+            
+            // Preencher campos técnicos
+            document.getElementById('editHorasUso').value = os.horasUso || '';
+            document.getElementById('editContadorJatos').value = os.contadorJatos || '';
+            document.getElementById('editMotivoParada').value = os.motivoParada || '';
+            
+            document.getElementById('editDiagnostico').value = os.diagnostico || '';
+            document.getElementById('editSolucao').value = os.solucao || '';
+            
+            document.getElementById('editPecasTrocadas').value = os.pecasTrocadas || '';
+            document.getElementById('editSolventeMl').value = os.solventeMl || '';
+            document.getElementById('editTintaMl').value = os.tintaMl || '';
+            
+            document.getElementById('editTempoTotal').value = os.tempoTotal || '';
+            document.getElementById('editObsFinais').value = os.obsFinais || '';
+            document.getElementById('editStatus').value = os.status;
+
+            document.getElementById('modalOS').style.display = 'block';
+        }
+
+        function fecharModal() {
+            document.getElementById('modalOS').style.display = 'none';
+        }
+
+        function salvarDetalhesOS(e) {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('editOSId').value);
+            const index = ordensServico.findIndex(o => o.id === id);
+            
+            if (index !== -1) {
+                ordensServico[index].horasUso = document.getElementById('editHorasUso').value;
+                ordensServico[index].contadorJatos = document.getElementById('editContadorJatos').value;
+                ordensServico[index].motivoParada = document.getElementById('editMotivoParada').value;
+                ordensServico[index].diagnostico = document.getElementById('editDiagnostico').value;
+                ordensServico[index].solucao = document.getElementById('editSolucao').value;
+                ordensServico[index].pecasTrocadas = document.getElementById('editPecasTrocadas').value;
+                ordensServico[index].solventeMl = document.getElementById('editSolventeMl').value;
+                ordensServico[index].tintaMl = document.getElementById('editTintaMl').value;
+                ordensServico[index].tempoTotal = document.getElementById('editTempoTotal').value;
+                ordensServico[index].obsFinais = document.getElementById('editObsFinais').value;
+                ordensServico[index].status = document.getElementById('editStatus').value;
+
+                // Salvar no LocalStorage
+                localStorage.setItem('cmms_ordens', JSON.stringify(ordensServico));
+                
+                renderizarOS();
+                atualizarDashboard();
+                fecharModal();
+                alert('Ordem de Serviço atualizada com sucesso!');
+            }
+        }
+
+        // Fechar modal ao clicar fora
+        window.onclick = function(event) {
+            const modal = document.getElementById('modalOS');
+            if (event.target == modal) {
+                fecharModal();
+            }
+        }
+
+        // Modificar a função renderizarOS para adicionar clique na linha
+        const renderizarOSOriginal = renderizarOS;
+        renderizarOS = function() {
+            const tbody = document.getElementById('tabelaOS');
+            tbody.innerHTML = '';
+
+            ordensServico.forEach(os => {
+                const tr = document.createElement('tr');
+                tr.onclick = () => abrirModalOS(os.id);
+                tr.style.cursor = 'pointer';
+                tr.title = "Clique para editar detalhes";
+                tr.innerHTML = `
+                    <td>#${os.id}</td>
+                    <td>${os.tipo}</td>
+                    <td>${os.modelo}</td>
+                    <td>${os.numSerie}</td>
+                    <td>${os.cliente}</td>
+                    <td>${os.tecnico || '-'}</td>
+                    <td><span class="status-badge status-${os.status.toLowerCase()}">${os.status}</span></td>
+                    <td>
+                        <button class="action-btn success" onclick="event.stopPropagation(); atualizarStatus(${os.id}, 'Concluido')">✓</button>
+                        <button class="action-btn secondary" onclick="event.stopPropagation(); atualizarStatus(${os.id}, 'Andamento')">▶</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Re-inicializar com dados persistidos
+        carregarDadosExemplo();
+    </script>
 </body>
 </html>
